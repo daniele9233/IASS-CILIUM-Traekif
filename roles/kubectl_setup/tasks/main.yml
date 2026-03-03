@@ -51,7 +51,7 @@
   delay: 10
 
 - name: Wait for core system pods to be running
-  shell: kubectl get pods -n kube-system --field-selector=status.phase=Running | grep -E "(coredns|canal|rke2)" | wc -l
+  shell: kubectl get pods -n kube-system --field-selector=status.phase=Running | grep -E "(coredns|cilium|rke2)" | wc -l
   register: core_pods_count
   environment:
     KUBECONFIG: /root/.kube/config

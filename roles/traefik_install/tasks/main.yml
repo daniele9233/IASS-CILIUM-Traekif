@@ -1,0 +1,69 @@
+---
+- name: Check if Traefik Helm repo already exists
+  shell: helm repo list | grep -q "traefik"
+  register: traefik_repo_check
+  failed_when: false
+  changed_when: false
+
+- name: Add Traefik Helm repository
+  shell: helm repo add traefik {{ traefik_helm_repo_url }}
+  when: traefik_repo_check.rc != 0
+  register: traefik_repo_add
+  changed_when: "'has been added' in traefik_repo_add.stdout"
+
+- name: Update Helm repositories
+  shell: helm repo update
+  register: helm_update
+  changed_when: "'Update Complete' in helm_update.stdout"
+
+- name: Create Traefik namespace
+  shell: |
+    kubectl create namespace {{ traefik_namespace }} --dry-run=client -o yaml | kubectl apply -f -
+  register: namespace_result
+  changed_when: "'created' in namespace_result.stdout or 'configured' in namespace_result.stdout"
+
+- name: Check if Traefik is already installed
+  shell: helm list -n {{ traefik_namespace }} | grep -q "{{ traefik_release_name }}"
+  register: traefik_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Traefik using Helm
+  shell: >
+    helm install {{ traefik_release_name }}
+    traefik/traefik
+    --namespace {{ traefik_namespace }}
+    --set service.type={{ traefik_service_type }}
+    --set ports.web.redirectTo.port=websecure
+    --set ingressClass.enabled=true
+    --set ingressClass.isDefaultClass=true
+    --timeout {{ helm_timeout }}
+    --wait
+  when: traefik_check.rc != 0
+  register: traefik_install
+  changed_when: traefik_install.rc == 0
+
+- name: Wait for Traefik deployment to be ready
+  shell: |
+    kubectl wait --for=condition=Available deployment/{{ traefik_release_name }} \
+    -n {{ traefik_namespace }} --timeout={{ pod_wait_timeout }} || true
+  register: traefik_wait
+  changed_when: false
+
+- name: Get Traefik pod status
+  shell: kubectl get pods -n {{ traefik_namespace }}
+  register: traefik_pods
+  changed_when: false
+
+- name: Display Traefik installation summary
+  debug:
+    msg:
+      - "=========================================="
+      - "Traefik Ingress Controller Installed!"
+      - "=========================================="
+      - "Namespace: {{ traefik_namespace }}"
+      - "Release: {{ traefik_release_name }}"
+      - "IngressClass: traefik (default)"
+      - ""
+      - "Pod Status:"
+      - "{{ traefik_pods.stdout }}"

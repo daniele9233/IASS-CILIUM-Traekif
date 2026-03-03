@@ -4,9 +4,10 @@ metadata:
   name: pgadmin
   namespace: {{ pgadmin_namespace }}
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   rules:
     - host: {{ pgadmin_hostname }}
       http:
