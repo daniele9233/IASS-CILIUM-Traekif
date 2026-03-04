@@ -63,6 +63,8 @@
         rkeConfig:
           machineGlobalConfig:
             cni: "{{ cluster_cni }}"
+            disable:
+              - rke2-ingress-nginx
             disable-kube-proxy: false
             etcd-expose-metrics: false
           machineSelectorConfig:
