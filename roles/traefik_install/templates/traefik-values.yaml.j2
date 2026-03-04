@@ -12,8 +12,6 @@ ports:
   web:
     exposedPort: {{ traefik_web_exposed_port }}
 {% if traefik_redirect_http_to_https %}
-    # Traefik Helm chart v33+ redirect syntax
-    # Replaces the removed 'redirectTo' property
     http:
       redirections:
         entryPoint:
@@ -21,10 +19,9 @@ ports:
           scheme: https
           permanent: true
 {% endif %}
+
   websecure:
     exposedPort: {{ traefik_websecure_exposed_port }}
-    tls:
-      enabled: true
 
 # Service configuration
 service:
