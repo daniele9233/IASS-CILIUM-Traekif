@@ -25,7 +25,7 @@ remote_cert_path: "/root"
 # Cluster configuration
 cluster_name: "ansible-safety"
 cluster_k8s_version: "v1.34.3+rke2r1"
-cluster_cni: "canal"
+cluster_cni: "cilium"
 ansibleSshHost: "localhost"
 
 # Master node configuration (per kubectl setup sui new_managers)
@@ -183,6 +183,14 @@ local_ssl_key_path: "files/privkey.pem"
 # Storage Class Name (variabile globale)
 storage_class_name: "nfs-k8s"
 
+# ==============================================
+# TRAEFIK INGRESS CONTROLLER CONFIGURATION
+# ==============================================
+traefik_namespace: "traefik"
+traefik_release_name: "traefik"
+traefik_service_type: "NodePort"
+traefik_helm_repo_url: "https://traefik.github.io/charts"
+
 # Prometheus/Monitoring configuration
 prometheus_namespace: "monitoring"
 grafana_password: "SecureGrafanaPassword123!"  # CAMBIA QUESTA PASSWORD
@@ -273,7 +281,7 @@ export_path: ""
 # NETWORK CONNECTIVITY CHECK CONFIGURATION
 # ==============================================
 # RKE2 Network Configuration (basato sulla tua infra)
-rke2_cluster_cidr: "10.42.0.0/16"     # Pod Network Canal
+rke2_cluster_cidr: "10.42.0.0/16"     # Pod Network Cilium
 rke2_service_cidr: "10.43.0.0/16"     # Service Network
 rke2_cluster_dns: "10.43.0.10"        # CoreDNS IP
 rke2_node_network: "10.205.166.0/24"  # I tuoi nodi
